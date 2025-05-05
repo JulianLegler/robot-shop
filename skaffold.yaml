@@ -1,0 +1,74 @@
+# skaffold.yaml – iterative dev on Robot‑Shop in Minikube (compose‑parity)
+# place at repo root
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: robot-shop-dev
+
+# Build locally inside the Minikube daemon 
+# dont forget to run `eval "$(minikube -p minikube docker-env)"` before running skaffold
+build:
+  tagPolicy:
+    gitCommit: {}
+  local:
+    push: false
+  artifacts:
+    # micro‑services
+    - image: robotshop/rs-cart
+      context: cart
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-catalogue
+      context: catalogue
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-user
+      context: user
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-shipping
+      context: shipping
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-payment
+      context: payment
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-dispatch
+      context: dispatch
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-ratings
+      context: ratings
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-web
+      context: web
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-mysql-db
+      context: mysql
+      docker:
+        dockerfile: Dockerfile
+    - image: robotshop/rs-mongodb
+      context: mongo
+      docker:
+        dockerfile: Dockerfile
+
+# use existing helmcharts from K8s/helm for deployment
+deploy:
+  helm:
+    releases:
+      - name: robot-shop
+        namespace: robot-shop
+        createNamespace: true
+        chartPath: K8s/helm
+        setValueTemplates:
+          image.version: "{{.IMAGE_TAG}}"
+
+# Web Service should be exposed on localhost:8080
+portForward:
+  - resourceType: service
+    resourceName: web
+    port: 8080
+    localPort: 8080
