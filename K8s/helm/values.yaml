@@ -17,7 +17,7 @@ psp:
   enabled: false
 
 # For the mini ones minikube, minishift set to true
-nodeport: false
+nodeport: true
 
 # "special" Openshift. Set to true when deploying to any openshift flavour
 openshift: false
